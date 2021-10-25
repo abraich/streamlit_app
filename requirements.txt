@@ -1,6 +1,7 @@
 streamlit==0.84.2
 torch
 sklearn
+
 seaborn
 matplotlib
 numpy

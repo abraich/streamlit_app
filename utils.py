@@ -17,7 +17,8 @@ from pycox.models import PMF , utils
 from scipy.linalg import toeplitz
 from scipy.stats import bernoulli, multivariate_normal
 from sklearn.preprocessing import StandardScaler
-from sklearn_pandas import DataFrameMapper
+
+
 from torch import Tensor
 from torchtuples import TupleTree
 import scipy
