@@ -23,7 +23,7 @@ from numba import jit
 
 scaler = preprocessing.MinMaxScaler()
 
-warnings.filterwarnings("ignore", category=FutureWarning)
+
 sns.set(color_codes=True)
 
 
