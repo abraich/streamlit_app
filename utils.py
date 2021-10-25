@@ -11,7 +11,7 @@ import seaborn as sns
 import torch  # For building the networks
 import torch.nn as nn
 import torch.nn.functional as F
-import torchtuples as tt  # Some useful functions
+
 from matplotlib.pyplot import figure
 from pycox.models import PMF , utils
 from scipy.linalg import toeplitz
