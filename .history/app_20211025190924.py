@@ -13,9 +13,11 @@ task = st.sidebar.selectbox("Choose a task", tasks_choices)
 
 st.title(f"SurvCaus- {task}")
 
-session_state = SessionState.get(name='', params=None)  # cache the session state
+session_state = SessionState.get(
+    name='', params=None)  # cache the session state
 
-session_state1 = SessionState.get(name='', params_best_tunning=None)  # cache the session state
+session_state1 = SessionState.get(
+    name='', params_best_tunning=None)  # cache the session state
 
 
 ev_cache = SessionState.get(name='', Ev=None)

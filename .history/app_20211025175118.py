@@ -13,9 +13,11 @@ task = st.sidebar.selectbox("Choose a task", tasks_choices)
 
 st.title(f"SurvCaus- {task}")
 
-session_state = SessionState.get(name='', params=None)  # cache the session state
+session_state = SessionState.get(
+    name='', params=None)  # cache the session state
 
-session_state1 = SessionState.get(name='', params_best_tunning=None)  # cache the session state
+session_state1 = SessionState.get(
+    name='', params_best_tunning=None)  # cache the session state
 
 
 ev_cache = SessionState.get(name='', Ev=None)
@@ -71,10 +73,11 @@ if task == 'Simulation':
     st.write("WD : ", simu.wd)
     # TSNE
     x = df.iloc[:, :p_sim['n_features']]
+    tt = df[['tt']].values.squeeze()
     tsne = TSNE(n_components=2, verbose=1, random_state=123)
     z = tsne.fit_transform(x)
     d = pd.DataFrame()
-    d["tt"] = df[['tt']].values.squeeze()
+    d["tt"] = tt
     d["comp-1"] = z[:, 0]
     d["comp-2"] = z[:, 1]
 

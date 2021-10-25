@@ -4,7 +4,7 @@
 # from scipy import stats
 import matplotlib.pyplot as plt
 import numpy as np
-import numpy.random as nr  
+import torchtuples as tt 
 
 import pandas as pd
 import seaborn as sns
@@ -40,17 +40,10 @@ from pysurvival.models.parametric import WeibullModel
 
 from pysurvival.models.parametric import LogLogisticModel
 from pysurvival.models.parametric import LogNormalModel
-import matplotlib.pyplot as plt
-import numpy as np
-import numpy.random as nr
-import pandas as pd
-import seaborn as sns
-import torch  # For building the networks
-import torch.nn as nn
-import torch.nn.functional as F
+
 
 from numpy.random import binomial, multivariate_normal
-from pycox.models import PMF, utils
+
 from scipy.integrate import simps
 from scipy.linalg.special_matrices import toeplitz
 from sklearn import preprocessing
@@ -59,6 +52,15 @@ from tqdm import tqdm
 
 
 from numba import jit
+
+from lifelines import KaplanMeierFitter, CoxPHFitter
+
+from pysurvival.models.survival_forest import ExtraSurvivalTreesModel
+from pysurvival.models.multi_task import NeuralMultiTaskModel
+
+seed = 31415
+np.random.seed(seed)
+
 
 scaler = preprocessing.MinMaxScaler()
 
@@ -615,7 +617,10 @@ def search_beta(alpha_t,lamb,coeff_tt, y_min,t):
     g_t = np.log(-log_u) - alpha_t * np.log(lamb*y_min) - coeff_tt *t 
     return g_t
 
-    
+ 
+def BART():
+    return ConditionalSurvivalForestModel()
+   
     
     
     
