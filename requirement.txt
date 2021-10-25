@@ -202,7 +202,7 @@ Mako==1.1.5
 Markdown==3.3.4
 markdown2==2.4.0
 MarkupSafe==1.1.1
-matplotlib==3.4.2
+matplotlib
 mccabe==0.6.1
 mechanize==0.4.5
 mistune==0.8.4
