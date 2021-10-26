@@ -8,7 +8,7 @@ import seaborn as sns
 import SessionState
 
 st.sidebar.header("Tasks")
-tasks_choices = ['Simulation', 'Tunning', 'Benchmarking','Plots','WD vs n_samples','WD vs n_features']
+tasks_choices = ['Simulation', 'Tunning', 'Benchmarking','Plots','WD vs n_samples']
 task = st.sidebar.selectbox("Choose a task", tasks_choices)
 
 st.title(f"SurvCaus- {task}")
@@ -223,19 +223,19 @@ if task == 'WD vs n_features':
     params = p_sim.copy()
     wd_param = st.sidebar.number_input("wd_param", min_value=0.)
     p_sim['wd_param'] = wd_param
-    n_features_min = st.sidebar.number_input(
+    n_samples_min = st.sidebar.number_input(
         "n_features_min", min_value=10)
-    n_features_max = st.sidebar.number_input(
+    n_samples_max = st.sidebar.number_input(
         "n_features_max", max_value=100)
     steps = st.sidebar.number_input("steps", min_value=1)
     
     # Simulation of data
-    i= n_features_min
+    i= n_samples_min
     L_wd = []
     L_n = []
-    while i < n_features_max :
+    while i < n_samples_max :
         print(i)
-        params["n_features"]=i
+        params["n_samples"]=i
         simu = Simulation(params)
         simu.simulation_surv()
         L_wd.append(simu.wd)
@@ -245,7 +245,7 @@ if task == 'WD vs n_features':
     
     fig1 = plt.figure(figsize=(18, 10))
     ax1 = fig1.add_subplot(111)
-    ax1.plot(L_n, L_wd, label='WD vs n_features')
+    ax1.plot(L_n, L_wd, label='WD vs n_samples')
     plt.legend()
     plt.close()
     st.pyplot(fig1)

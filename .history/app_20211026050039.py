@@ -8,7 +8,7 @@ import seaborn as sns
 import SessionState
 
 st.sidebar.header("Tasks")
-tasks_choices = ['Simulation', 'Tunning', 'Benchmarking','Plots','WD vs n_samples','WD vs n_features']
+tasks_choices = ['Simulation', 'Tunning', 'Benchmarking','Plots']
 task = st.sidebar.selectbox("Choose a task", tasks_choices)
 
 st.title(f"SurvCaus- {task}")
@@ -34,7 +34,6 @@ if task == 'Simulation':
     p_sim['scheme'] = 'linear'  # 'linear'
     p_sim['path_data'] = "./sim_surv"
     params = p_sim.copy()
-    
     n_samples = st.sidebar.number_input(
         "n_samples", min_value=1000, max_value=10000)
     n_features = st.sidebar.number_input(
@@ -162,90 +161,35 @@ if task == 'Plots':
         st.pyplot(fig_cate)
 
 if task == 'WD vs n_samples':
-    p_sim = {}
-    p_sim['n_samples'] = 1000
-    p_sim['n_features'] = 25
-    p_sim['beta'] = [0.01 * (p_sim['n_features'] - i) / p_sim['n_features']
-                    for i in range(0, p_sim['n_features'])]
-    p_sim['alpha'] = 3
-    p_sim['lamb'] = 1
-    p_sim['coef_tt'] = 1.8
-    p_sim['rho'] = 0.0
-    p_sim['kappa'] = 3.
-    p_sim['wd_param'] = 3.  # 4.
-    p_sim['scheme'] = 'linear'  # 'linear'
-    p_sim['path_data'] = "./sim_surv"
-    params = p_sim.copy()
-    wd_param = st.sidebar.number_input("wd_param", min_value=0.)
-    p_sim['wd_param'] = wd_param
-    n_samples_min = st.sidebar.number_input(
-        "n_samples_min", min_value=1000)
-    n_samples_max = st.sidebar.number_input(
-        "n_samples_max", max_value=10000)
-    steps = st.sidebar.number_input("steps", min_value=1)
-    
-    # Simulation of data
-    i= n_samples_min
-    L_wd = []
-    L_n = []
-    while i < n_samples_max :
-        print(i)
-        params["n_samples"]=i
-        simu = Simulation(params)
-        simu.simulation_surv()
-        L_wd.append(simu.wd)
-        L_n.append(i)
-        i+=steps
+    if task == 'Simulation':
+        p_sim = {}
+        p_sim['n_samples'] = 1000
+        p_sim['n_features'] = 25
+        p_sim['beta'] = [0.01 * (p_sim['n_features'] - i) / p_sim['n_features']
+                        for i in range(0, p_sim['n_features'])]
+        p_sim['alpha'] = 3
+        p_sim['lamb'] = 1
+        p_sim['coef_tt'] = 1.8
+        p_sim['rho'] = 0.0
+        p_sim['kappa'] = 3.
+        p_sim['wd_param'] = 3.  # 4.
+        p_sim['scheme'] = 'linear'  # 'linear'
+        p_sim['path_data'] = "./sim_surv"
+        params = p_sim.copy()
+        n_samples_min = st.sidebar.number_input(
+            "n_samples_min", min_value=1000)
+        n_samples_max = st.sidebar.number_input(
+            "n_samples_min", min_value=2000)
+        steps = st.sidebar.number_input("steps", min_value=1)
         
-    
-    fig1 = plt.figure(figsize=(18, 10))
-    ax1 = fig1.add_subplot(111)
-    ax1.plot(L_n, L_wd, label='WD vs n_samples')
-    plt.legend()
-    plt.close()
-    st.pyplot(fig1)
-
-
-if task == 'WD vs n_features':
-    p_sim = {}
-    p_sim['n_samples'] = 1000
-    p_sim['n_features'] = 25
-    p_sim['beta'] = [0.01 * (p_sim['n_features'] - i) / p_sim['n_features']
-                    for i in range(0, p_sim['n_features'])]
-    p_sim['alpha'] = 3
-    p_sim['lamb'] = 1
-    p_sim['coef_tt'] = 1.8
-    p_sim['rho'] = 0.0
-    p_sim['kappa'] = 3.
-    p_sim['wd_param'] = 3.  # 4.
-    p_sim['scheme'] = 'linear'  # 'linear'
-    p_sim['path_data'] = "./sim_surv"
-    params = p_sim.copy()
-    wd_param = st.sidebar.number_input("wd_param", min_value=0.)
-    p_sim['wd_param'] = wd_param
-    n_features_min = st.sidebar.number_input(
-        "n_features_min", min_value=10)
-    n_features_max = st.sidebar.number_input(
-        "n_features_max", max_value=100)
-    steps = st.sidebar.number_input("steps", min_value=1)
-    
-    # Simulation of data
-    i= n_features_min
-    L_wd = []
-    L_n = []
-    while i < n_features_max :
-        print(i)
-        params["n_features"]=i
-        simu = Simulation(params)
-        simu.simulation_surv()
-        L_wd.append(simu.wd)
-        L_n.append(i)
-        i+=steps
+        # Simulation of data
+        i= n_samples_min
+        L_wd = []
+        L_n = []
+        while i < n_samples_max :
+            params["n_samples"]=i
+            simu = Simulation(params)
+            L_wd.append(simu.wd)
+            L_n.append(i)
+            i+=steps
         
-    
-    fig1 = plt.figure(figsize=(18, 10))
-    ax1 = fig1.add_subplot(111)
-    ax1.plot(L_n, L_wd, label='WD vs n_features')
-    plt.legend()
-    plt.close()
-    st.pyplot(fig1)
