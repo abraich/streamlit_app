@@ -563,8 +563,8 @@ def interpolate(I, cuts, S_0_pred, S_1_pred):
 
 @jit(forceobj=True, nogil=True, boundscheck=False)
 def piecewise(x, bins, values):
-    #bins = np.asarray(bins[:len(x)])
-    #values = np.asarray(values[:len(x)])
+    bins = np.asarray(bins[:len(x)])
+    values = np.asarray(values[:len(bins)])
 
     """Computes the values at x of the piecewise constant function
     on the given `bins` with values in `values`

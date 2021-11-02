@@ -311,7 +311,7 @@ class Evaluation():
             self.params_simu, self.params_survcaus).get_data()
         self.cuts = self.SC.cuts
         self.t_max = min(max(self.data.df_train['T_f_cens']), max(self.cuts))
-        self.N = 1500
+        self.N = 100
         self.I = np.linspace(0, self.t_max, self.N)
 
     def S(self, tt_p, xbeta_p, t):
@@ -324,7 +324,8 @@ class Evaluation():
                 np.abs(xbeta_p - c_tt) + c_tt
             return np.exp(-(self.params_simu['lamb'] * t) ** self.params_simu['alpha'] * np.exp(sh_z))
 
-   
+    def piecewise_c(self, I, cuts, S):
+        return piecewise(I, cuts, S)
 
     def Results_SurvCaus(self, model, is_train):
         if is_train:
