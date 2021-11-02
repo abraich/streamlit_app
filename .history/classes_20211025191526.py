@@ -130,6 +130,7 @@ class DataLoader():
 
         df = pd.read_csv(self.path + ".csv")
         dim = df.shape[1]-8
+        min_max_scaler = preprocessing.MinMaxScaler()
 
         x_z_list = ["X" + str(i) for i in range(1, dim + 1)] + ["tt"]
         leave = x_z_list + ["event", "T_f_cens"]
@@ -138,6 +139,7 @@ class DataLoader():
         rs = ShuffleSplit(test_size=.4, random_state=0)
         df_ = df[leave].copy()
 
+        #df_[x_z_list] = pd.DataFrame(min_max_scaler.fit_transform(df_[x_z_list]))
 
         for train_index, test_index in rs.split(df_):
             df_train = df_.drop(test_index)
@@ -739,10 +741,10 @@ class Simulation:
 
         p_tt = sigmoid(self.X.dot(params_tt))
         tt = binomial(1, p_tt)  # treatment
-
+        # agathe : je ne comprends pas bien la 2ieme ligne
         for j in range(self.n_features):
-            self.X[:, j] -= self.wd_para/2 * tt
-            self.X[:, j] += self.wd_para/2 * (1-tt)
+            self.X[:, j] -= self.wd_para * tt
+            self.X[:, j] = self.X[:, j]  # **(tt+1)
 
         # simulation of factual and counterfactual times to event
         T_f = self.simulation_T(tt)
@@ -779,8 +781,7 @@ class Simulation:
         colmns = ["X" + str(j) for j in range(1, self.n_features + 1)]
         data_sim = pd.DataFrame(data=self.X, columns=colmns)
         
-        # scaling 
-        #data_sim = pd.DataFrame(scaler.fit_transform(data_sim),columns=colmns)
+        data_sim = pd.DataFrame(scaler.fit_transform(data_sim),columns=colmns)
         
         data_sim["tt"] = tt
         data_sim["T_f_cens"] = T_f_cens
