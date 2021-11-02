@@ -58,7 +58,7 @@ if task == 'Simulation':
                      for i in range(0, n_features)]
     
     if beta_tcga :
-        params['beta'] = pd.read_csv('./beta_TGCA.csv')['x'].values[:n_features]
+        params['beta'] = 
         
     params['n_samples'] = n_samples
     params['n_features'] = n_features

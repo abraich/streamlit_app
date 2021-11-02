@@ -44,8 +44,6 @@ if task == 'Simulation':
     wd_param = st.sidebar.number_input("wd_param", value=3.)
     kappa = st.sidebar.number_input("kappa", 3.)
     scheme = st.sidebar.selectbox("scheme", ['linear', 'nonlinear'])
-    beta_tcga = st.sidebar.selectbox("isbeta_tcga", [True, False])
-    
     if scheme == 'linear':
         alpha = st.sidebar.number_input("alpha", min_value=3., max_value=5.)
         lamb = st.sidebar.number_input("lamb", min_value=1., max_value=3.)
@@ -56,10 +54,6 @@ if task == 'Simulation':
     
     params['beta'] = [0.01 * (n_features- i) / n_features
                      for i in range(0, n_features)]
-    
-    if beta_tcga :
-        params['beta'] = pd.read_csv('./beta_TGCA.csv')['x'].values[:n_features]
-        
     params['n_samples'] = n_samples
     params['n_features'] = n_features
     params['alpha'] = alpha
