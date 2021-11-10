@@ -466,14 +466,13 @@ class Evaluation():
         surv0_dict = {}
         surv1_dict = {}
         pehe_dict = {}
-        fsm_dict = {}
         bilan = {}
         bilan['models'] = list_models
         bilan['Mise0'] = []
         bilan['Mise1'] = []
         bilan['CATE'] = []
         bilan['PEHE'] = []
-        bilan['FSM'] = []
+
         for model_name in list_models:
             print(model_name)
             if model_name == "SurvCaus":
@@ -514,8 +513,7 @@ class Evaluation():
             surv0_dict[f'{model_name}'] = d_list_models[f'd_{model_name}']['mise_0']
             surv1_dict[f'{model_name}'] = d_list_models[f'd_{model_name}']['mise_1']
             pehe_dict[f'{model_name}'] = d_list_models[f'd_{model_name}']['sqrt PEHE']
-            fsm_dict[f'{model_name}'] = (np.array(surv0_dict[f'{model_name}'].copy())+np.array(surv1_dict[f'{model_name}'].copy()))**2
-            
+
             bilan['CATE'].append((np.mean(cate_dict[f'{model_name}']).round(
                 3), np.std(cate_dict[f'{model_name}']).round(3)))
             bilan['PEHE'].append((np.mean(pehe_dict[f'{model_name}']).round(
@@ -524,10 +522,9 @@ class Evaluation():
                 3), np.std(surv0_dict[f'{model_name}']).round(3)))
             bilan['Mise1'].append((np.mean(surv1_dict[f'{model_name}']).round(
                 3), np.std(surv1_dict[f'{model_name}']).round(3)))
-            bilan['FSM'].append((np.mean(fsm_dict[f'{model_name}']).round( 
-                3), np.std(fsm_dict[f'{model_name}']).round(3)))
 
-      
+        FSM = (bilan['Mise0']+bilan['Mise1'])**2
+        bilan['FSM']=FSM
         self.bilan_benchmark = pd.DataFrame(bilan)
         self.bilan_json = bilan
         self.d_list_models = d_list_models
@@ -543,7 +540,7 @@ class Evaluation():
         self.box_plot_surv0 = box_plot(surv0_dict, "MISE de Surv0")
         self.box_plot_surv1 = box_plot(surv1_dict, "MISE de Surv1")
         self.box_plot_pehe = box_plot(pehe_dict, "sqrt PEHE")
-        self.box_plot_FSM = box_plot(fsm_dict, "FSM")
+        self.box_plot_FSM = box_plot(FSM, "FSM")
 
     def plots(patient, d_all, model_name):
         d = d_all[f'd_{model_name}']
@@ -685,12 +682,9 @@ class Simulation:
 
         # Simulation of baseline covariates
         cov = toeplitz(rho ** np.arange(0, self.n_features))
-        
-        # multivariate normal
-        #self.X = multivariate_normal(np.zeros(self.n_features), cov, size=n_samples)
-        # uniformal distribution
-        self.X = np.random.uniform(0, 1, size=(n_samples, n_features))
-        
+        self.X = multivariate_normal(
+            np.zeros(self.n_features), cov, size=n_samples)
+
         self.n_samples = n_samples
         self.beta = beta
         self.alpha = alpha

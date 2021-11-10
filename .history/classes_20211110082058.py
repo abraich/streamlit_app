@@ -685,12 +685,9 @@ class Simulation:
 
         # Simulation of baseline covariates
         cov = toeplitz(rho ** np.arange(0, self.n_features))
-        
-        # multivariate normal
-        #self.X = multivariate_normal(np.zeros(self.n_features), cov, size=n_samples)
-        # uniformal distribution
-        self.X = np.random.uniform(0, 1, size=(n_samples, n_features))
-        
+        self.X = multivariate_normal(
+            np.zeros(self.n_features), cov, size=n_samples)
+
         self.n_samples = n_samples
         self.beta = beta
         self.alpha = alpha

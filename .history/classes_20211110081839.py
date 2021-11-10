@@ -514,7 +514,7 @@ class Evaluation():
             surv0_dict[f'{model_name}'] = d_list_models[f'd_{model_name}']['mise_0']
             surv1_dict[f'{model_name}'] = d_list_models[f'd_{model_name}']['mise_1']
             pehe_dict[f'{model_name}'] = d_list_models[f'd_{model_name}']['sqrt PEHE']
-            fsm_dict[f'{model_name}'] = (np.array(surv0_dict[f'{model_name}'].copy())+np.array(surv1_dict[f'{model_name}'].copy()))**2
+            fsm_dict[f'{model_name}'] = (np.array(surv0_dict[f'{model_name}'])+np.array(surv1_dict[f'{model_name}']))**2
             
             bilan['CATE'].append((np.mean(cate_dict[f'{model_name}']).round(
                 3), np.std(cate_dict[f'{model_name}']).round(3)))
@@ -685,12 +685,9 @@ class Simulation:
 
         # Simulation of baseline covariates
         cov = toeplitz(rho ** np.arange(0, self.n_features))
-        
-        # multivariate normal
-        #self.X = multivariate_normal(np.zeros(self.n_features), cov, size=n_samples)
-        # uniformal distribution
-        self.X = np.random.uniform(0, 1, size=(n_samples, n_features))
-        
+        self.X = multivariate_normal(
+            np.zeros(self.n_features), cov, size=n_samples)
+
         self.n_samples = n_samples
         self.beta = beta
         self.alpha = alpha
