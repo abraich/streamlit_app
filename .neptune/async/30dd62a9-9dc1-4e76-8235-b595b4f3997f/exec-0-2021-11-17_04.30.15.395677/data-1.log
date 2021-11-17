@@ -1,0 +1,54 @@
+{"obj": {"type": "AssignString", "path": ["sys", "name"], "value": "Untitled"}, "version": 1}
+{"obj": {"type": "AssignString", "path": ["sys", "description"], "value": ""}, "version": 2}
+{"obj": {"type": "AssignString", "path": ["sys", "hostname"], "value": "gohan"}, "version": 3}
+{"obj": {"type": "AssignBool", "path": ["sys", "failed"], "value": false}, "version": 4}
+{"obj": {"type": "ClearStringLog", "path": ["monitoring", "stdout"]}, "version": 5}
+{"obj": {"type": "ClearStringLog", "path": ["monitoring", "stderr"]}, "version": 6}
+{"obj": {"type": "ConfigFloatSeries", "path": ["monitoring", "cpu"], "min": 0.0, "max": 100.0, "unit": "%"}, "version": 7}
+{"obj": {"type": "ClearFloatLog", "path": ["monitoring", "cpu"]}, "version": 8}
+{"obj": {"type": "ConfigFloatSeries", "path": ["monitoring", "memory"], "min": 0.0, "max": 15.318778991699219, "unit": "GB"}, "version": 9}
+{"obj": {"type": "ClearFloatLog", "path": ["monitoring", "memory"]}, "version": 10}
+{"obj": {"type": "LogStrings", "path": ["monitoring", "stdout"], "values": [{"value": "b''", "step": null, "ts": 1637119815.4865968}]}, "version": 11}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "cpu"], "values": [{"value": 32.5, "step": null, "ts": 1637119815.479503}]}, "version": 12}
+{"obj": {"type": "LogStrings", "path": ["monitoring", "stdout"], "values": [{"value": "b'https://app.neptune.ai/SurvCaus/RUNS/e/RUN-2\\n'", "step": null, "ts": 1637119815.488823}]}, "version": 13}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "memory"], "values": [{"value": 14.79446029663086, "step": null, "ts": 1637119815.479503}]}, "version": 14}
+{"obj": {"type": "LogStrings", "path": ["monitoring", "stdout"], "values": [{"value": "b'Remember to stop your run once you\\xe2\\x80\\x99ve finished logging your metadata (https://docs.neptune.ai/api-reference/run#stop). It will be stopped automatically only when the notebook kernel/interactive console is terminated.\\n'", "step": null, "ts": 1637119815.4909813}]}, "version": 15}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "cpu"], "values": [{"value": 39.0, "step": null, "ts": 1637119825.4908276}]}, "version": 16}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "memory"], "values": [{"value": 14.683902740478516, "step": null, "ts": 1637119825.4908276}]}, "version": 17}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "cpu"], "values": [{"value": 19.6, "step": null, "ts": 1637119835.4916124}]}, "version": 18}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "memory"], "values": [{"value": 14.661262512207031, "step": null, "ts": 1637119835.4916124}]}, "version": 19}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "cpu"], "values": [{"value": 18.1, "step": null, "ts": 1637119845.4924848}]}, "version": 20}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "memory"], "values": [{"value": 14.666667938232422, "step": null, "ts": 1637119845.4924848}]}, "version": 21}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "cpu"], "values": [{"value": 16.6, "step": null, "ts": 1637119855.4937296}]}, "version": 22}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "memory"], "values": [{"value": 14.429862976074219, "step": null, "ts": 1637119855.4937296}]}, "version": 23}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "cpu"], "values": [{"value": 17.0, "step": null, "ts": 1637119865.494495}]}, "version": 24}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "memory"], "values": [{"value": 14.437522888183594, "step": null, "ts": 1637119865.494495}]}, "version": 25}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "cpu"], "values": [{"value": 23.5, "step": null, "ts": 1637119875.4952786}]}, "version": 26}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "memory"], "values": [{"value": 14.489768981933594, "step": null, "ts": 1637119875.4952786}]}, "version": 27}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "cpu"], "values": [{"value": 15.5, "step": null, "ts": 1637119885.4960763}]}, "version": 28}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "memory"], "values": [{"value": 14.471256256103516, "step": null, "ts": 1637119885.4960763}]}, "version": 29}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "cpu"], "values": [{"value": 15.0, "step": null, "ts": 1637119895.4967818}]}, "version": 30}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "memory"], "values": [{"value": 14.40545654296875, "step": null, "ts": 1637119895.4967818}]}, "version": 31}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "cpu"], "values": [{"value": 16.6, "step": null, "ts": 1637119905.4977832}]}, "version": 32}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "memory"], "values": [{"value": 14.480667114257812, "step": null, "ts": 1637119905.4977832}]}, "version": 33}
+{"obj": {"type": "LogStrings", "path": ["monitoring", "stdout"], "values": [{"value": "b''", "step": null, "ts": 1637119906.7479093}]}, "version": 34}
+{"obj": {"type": "LogStrings", "path": ["monitoring", "stdout"], "values": [{"value": "b'https://app.neptune.ai/SurvCaus/RUNS/e/RUN-3\\n'", "step": null, "ts": 1637119906.7487867}]}, "version": 35}
+{"obj": {"type": "LogStrings", "path": ["monitoring", "stdout"], "values": [{"value": "b'Remember to stop your run once you\\xe2\\x80\\x99ve finished logging your metadata (https://docs.neptune.ai/api-reference/run#stop). It will be stopped automatically only when the notebook kernel/interactive console is terminated.\\n'", "step": null, "ts": 1637119906.7503273}]}, "version": 36}
+{"obj": {"type": "LogStrings", "path": ["monitoring", "stdout"], "values": [{"value": "WD = ", "step": null, "ts": 1637119907.4836473}]}, "version": 37}
+{"obj": {"type": "LogStrings", "path": ["monitoring", "stdout"], "values": [{"value": " ", "step": null, "ts": 1637119907.4862952}]}, "version": 38}
+{"obj": {"type": "LogStrings", "path": ["monitoring", "stdout"], "values": [{"value": "110.77679443359375", "step": null, "ts": 1637119907.4880126}]}, "version": 39}
+{"obj": {"type": "LogStrings", "path": ["monitoring", "stdout"], "values": [{"value": "\n", "step": null, "ts": 1637119907.4883769}]}, "version": 40}
+{"obj": {"type": "LogStrings", "path": ["monitoring", "stdout"], "values": [{"value": "tt = 1 : 51 % ", "step": null, "ts": 1637119907.4887104}]}, "version": 41}
+{"obj": {"type": "LogStrings", "path": ["monitoring", "stdout"], "values": [{"value": "\n", "step": null, "ts": 1637119907.4890435}]}, "version": 42}
+{"obj": {"type": "LogStrings", "path": ["monitoring", "stdout"], "values": [{"value": "event = 1 : 72 %", "step": null, "ts": 1637119907.4894323}]}, "version": 43}
+{"obj": {"type": "LogStrings", "path": ["monitoring", "stdout"], "values": [{"value": "\n", "step": null, "ts": 1637119907.4896805}]}, "version": 44}
+{"obj": {"type": "LogStrings", "path": ["monitoring", "stdout"], "values": [{"value": "Scheme : ", "step": null, "ts": 1637119907.490042}]}, "version": 45}
+{"obj": {"type": "LogStrings", "path": ["monitoring", "stdout"], "values": [{"value": " ", "step": null, "ts": 1637119907.4904847}]}, "version": 46}
+{"obj": {"type": "LogStrings", "path": ["monitoring", "stdout"], "values": [{"value": "nonlinear", "step": null, "ts": 1637119907.4907296}]}, "version": 47}
+{"obj": {"type": "LogStrings", "path": ["monitoring", "stdout"], "values": [{"value": "\n", "step": null, "ts": 1637119907.4910598}]}, "version": 48}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "cpu"], "values": [{"value": 47.2, "step": null, "ts": 1637119915.4985096}]}, "version": 49}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "memory"], "values": [{"value": 14.663803100585938, "step": null, "ts": 1637119915.4985096}]}, "version": 50}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "cpu"], "values": [{"value": 19.0, "step": null, "ts": 1637119925.4993958}]}, "version": 51}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "memory"], "values": [{"value": 14.687915802001953, "step": null, "ts": 1637119925.4993958}]}, "version": 52}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "cpu"], "values": [{"value": 31.7, "step": null, "ts": 1637119935.5002103}]}, "version": 53}
+{"obj": {"type": "LogFloats", "path": ["monitoring", "memory"], "values": [{"value": 14.77431869506836, "step": null, "ts": 1637119935.5002103}]}, "version": 54}
