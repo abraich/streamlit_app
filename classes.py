@@ -20,7 +20,7 @@ from sklearn import preprocessing
 from sklearn.manifold import TSNE
 from sklearn.model_selection import ShuffleSplit
 from tqdm import tqdm
-
+import json
 from losses import *
 from simulationnew import *
 from utils import *
@@ -40,6 +40,7 @@ class NetCFRSurv(nn.Module):
 
     def __init__(self, in_features, encoded_features, out_features, alpha=1):
         super().__init__()
+      
         self.psi = nn.Sequential(
             nn.Linear(in_features-1, 32),  nn.LeakyReLU(),
             nn.Linear(32, 32),  nn.ReLU(),
@@ -67,6 +68,7 @@ class NetCFRSurv(nn.Module):
 
     def forward(self, input):
         x, t = get_data(input)
+        self.input = input
         psi = self.psi(x)
         # psi_inv = self.psi_inv(psi)
         psi_t = torch.cat((psi, t), 1)
@@ -78,14 +80,35 @@ class NetCFRSurv(nn.Module):
         return torch.cat((self.psi(x), t), 1)
 
     def predict(self, input):
-
         psi_t = self.get_repr(input)
         return self.surv_net(psi_t)
+    # tsne representation
+
+    """def get_tsne(self, x, t):
+        # x to tensor
+        x = torch.tensor(x)
+        psi = self.psi(x)
+        psi = psi.detach().numpy()
+        tsne = TSNE(n_components=2, verbose=1, random_state=123)
+        z = tsne.fit_transform(psi)
+        d = pd.DataFrame()
+        d["tt"] = t
+        d["x"] = z[:, 0]
+        d["y"] = z[:, 1]
+        # figure
+        fig = plt.figure(figsize=(10, 10))
+        ax = fig.add_subplot(1, 1, 1)
+        ax.set_xlabel('t-SNE dimension 1')
+        ax.set_ylabel('t-SNE dimension 2')
+        ax.set_title('t-SNE visualization')
+        ax.scatter(d["x"], d["y"], c=d["tt"], cmap='viridis')
+        plt.close()
+        # return figure
+
+        return fig"""
 
 
 # define the model
-
-
 """ DataLoader class """
 
 
@@ -94,7 +117,7 @@ class DataLoader():
         super().__init__()
         self.path = params_sim['path_data']
         self.pmf = True
-        self.scheme_subd ="quantiles"  # "equidistant"  # "quantiles"
+        self.scheme_subd = "quantiles"  # "equidistant"  # "quantiles"
         self.num_durations = params_survcaus['num_durations']
 
     def load_data_sim_benchmark(self):
@@ -112,7 +135,7 @@ class DataLoader():
         for train_index, test_index in rs.split(df_):
             df_train = df_.drop(test_index)
             df_test = df_.drop(train_index)
-            df_val = df_test.sample(frac=0.5)
+            df_val = df_test.sample(frac=0.2)
             df_test = df_test.drop(df_val.index)
 
         if self.pmf:
@@ -176,45 +199,6 @@ class DataLoader():
     def get_data(self):
         self.load_data_sim_benchmark()
         return self
-
-
-""" Sensitivity class """
-# sensitivity_analysis of X : selection of features with the highest sensitivity
-
-
-class Sensitivity():
-    def __init__(self, params_sim, params_survcaus):
-        super().__init__()
-        self.params_sim = params_sim
-        self.params_survcaus = params_survcaus
-        self.data = DataLoader(params_sim, params_survcaus).get_data()
-
-    def sensitivity_analysis(self):
-        # load data
-        x_train, y_train, x_val, y_val, x_test, durations_test, events_test, labtrans, x_test = self.data.x_train, self.data.y_train, self.data.x_val, self.data.y_val, self.data.x_test, self.data.durations_test, self.data.events_test, self.data.labtrans, self.data.x_test
-
-        # define the model
-        SC = SurvCaus(self.params_sim, self.params_survcaus)
-        SC.fit_model()
-
-        # S_pred_train = SC.
-        delta = 0.01
-        # modifie x : x_i <- x_i - delta
-        x_train_ = x_train.copy()
-        x_val_ = x_val.copy()
-        x_test_ = x_test.copy()
-        sens_train = []
-        for i in range(x_train_.shape[1]):
-            x_train_[:, i] = x_train_[:, i] - delta
-            x_val_[:, i] = x_val_[:, i] - delta
-            x_test_[:, i] = x_test_[:, i] - delta
-            model.fit(x_train_, y_train, x_val_, y_val)
-            S_pred_train_ = model.predict(x_train_)
-
-            # compute the sensitivity
-            sens_train.append(mise(S_pred_train, S_pred_train_))
-
-        return sens_train
 
 
 """ SurvCaus class """
@@ -529,7 +513,7 @@ class Evaluation():
                 SC.fit_model()
                 d_list_models[f'd_{model_name}'] = self.Results_SurvCaus(
                     SC, is_train)
-
+                self.SC = SC
             if model_name == "SurvCaus_0":
                 params_survcaus_0 = self.params_survcaus.copy()
                 params_survcaus_0['alpha_wass'] = 0.
@@ -562,6 +546,50 @@ class Evaluation():
                 d_list_models[f'd_{model_name}'] = self.Results_Benchmark(
                     model0, model1, is_train)
 
+            if model_name == 'DeepSurv':
+                structure = [
+                    {'activation': 'BentIdentity', 'num_units': 150}, ]
+
+                model0, model1 = NonLinearCoxPHModel(
+                    structure=structure), NonLinearCoxPHModel(structure=structure)
+
+                model0.fit(self.data.x_0_train, self.data.T_f_0_train,
+                           self.data.e_0_train, lr=1e-3, init_method='xav_uniform')
+                model1.fit(self.data.x_1_train, self.data.T_f_1_train,
+                           self.data.e_1_train, lr=1e-3, init_method='xav_uniform')
+                d_list_models[f'd_{model_name}'] = self.Results_Benchmark(
+                    model0, model1, is_train)
+
+            if model_name == 'EST':
+                model0, model1 = ExtraSurvivalTreesModel(
+                    num_trees=200), ExtraSurvivalTreesModel(num_trees=200)
+                model0.fit(self.data.x_0_train, self.data.T_f_0_train,
+                           self.data.e_0_train)
+                model1.fit(self.data.x_1_train, self.data.T_f_1_train,
+                           self.data.e_1_train)
+                d_list_models[f'd_{model_name}'] = self.Results_Benchmark(
+                    model0, model1, is_train)
+            if model_name == 'NMTLR':
+                structure = [{'activation': 'ReLU', 'num_units': 150}, ]
+                model0, model1 = NeuralMultiTaskModel(
+                    structure=structure, bins=150), NeuralMultiTaskModel(structure=structure, bins=150)
+                model0.fit(self.data.x_0_train, self.data.T_f_0_train,
+                           self.data.e_0_train, lr=1e-3, init_method='xav_uniform')
+                model1.fit(self.data.x_1_train, self.data.T_f_1_train,
+                           self.data.e_1_train, lr=1e-3, init_method='xav_uniform')
+                d_list_models[f'd_{model_name}'] = self.Results_Benchmark(
+                    model0, model1, is_train)
+
+            if model_name == 'RSF':
+                model0, model1 = RandomSurvivalForestModel(
+                    num_trees=200), RandomSurvivalForestModel(num_trees=200)
+                model0.fit(self.data.x_0_train, self.data.T_f_0_train,
+                           self.data.e_0_train)
+                model1.fit(self.data.x_1_train, self.data.T_f_1_train,
+                           self.data.e_1_train)
+                d_list_models[f'd_{model_name}'] = self.Results_Benchmark(
+                    model0, model1, is_train)
+
             cate_dict[f'{model_name}'] = d_list_models[f'd_{model_name}']['mise_cate']
             surv0_dict[f'{model_name}'] = d_list_models[f'd_{model_name}']['mise_0']
             surv1_dict[f'{model_name}'] = d_list_models[f'd_{model_name}']['mise_1']
@@ -588,6 +616,8 @@ class Evaluation():
             fig, ax = plt.subplots()
             ax.boxplot(l.values())
             ax.set_xticklabels(l.keys())
+            # rotate and align the tick labels so they look better
+            fig.autofmt_xdate()
             plt.title(str(title))
             return fig
 
@@ -596,62 +626,6 @@ class Evaluation():
         self.box_plot_surv1 = box_plot(surv1_dict, "MISE de Surv1")
         self.box_plot_pehe = box_plot(pehe_dict, "sqrt PEHE")
         self.box_plot_FSM = box_plot(fsm_dict, "FSM")
-
-    def plots(patient, d_all, model_name):
-        d = d_all[f'd_{model_name}']
-        I = d['I']
-        S_0_pred = d['S_0_pred'][patient]
-        S_1_pred = d['S_1_pred'][patient]
-        S_0_true = d['S_0_true'][patient]
-        S_1_true = d['S_1_true'][patient]
-
-        CATE_true = S_1_true - S_0_true
-        CATE_pred = S_1_pred - S_0_pred
-
-        d_ours = d_all['d_SurvCaus']
-
-        S_0_pred_ours = d_ours['S_0_pred'][patient]
-        S_1_pred_ours = d_ours['S_1_pred'][patient]
-
-        CATE_pred_ours = S_1_pred_ours - S_0_pred_ours
-
-        p_ours = np.argmin(
-            np.array(d_ours['mise_0'])+np.array(d_ours['mise_1']))
-        p_bench = np.argmin(np.array(d['mise_0'])+np.array(d['mise_1']))
-        print("(p_ours,p_bench) =", (p_ours, p_bench))
-        # Plot survie
-
-        fig_surv = plt.figure(figsize=(18, 10))
-        ax1 = fig_surv.add_subplot(111)
-        ax1.plot(I, S_0_true, label='S_true for T=0',
-                 marker='o', markersize=1, color='b')
-        ax1.plot(I, S_1_true, label='S_true for T=1',
-                 marker='o', markersize=1, color='r')
-        ax1.plot(I, S_0_pred, label='S_pred for T=0',
-                 color='b', linestyle='dashed')
-        ax1.plot(I, S_1_pred, label='S_pred for T=1',
-                 color='r', linestyle='dashed')
-        ax1.plot(I, S_0_pred_ours, label='S_pred_ours for T=0',
-                 color='b', linestyle='-.', drawstyle='steps-post')
-        ax1.plot(I, S_1_pred_ours, label='S_pred_ours for T=1',
-                 color='r', linestyle='-.', drawstyle='steps-post')
-
-        plt.legend()
-        plt.title(
-            f"Mise (0,1) =  OURS : ({d_ours['mise_0'][patient].round(4)},{d_ours['mise_1'][patient].round(4)}) || {model_name} : ({d['mise_0'][patient].round(4)},{d['mise_1'][patient].round(4)}) ")
-
-        # plot CATE
-        fig_cate = plt.figure(figsize=(18, 10))
-        ax2 = fig_cate.add_subplot(111)
-        ax2.plot(I, CATE_true, label='CATE_true',
-                 marker='o', markersize=1, color='b')
-        ax2.plot(I, CATE_pred, label='CATE_pred', color='r')
-        ax2.plot(I, CATE_pred_ours, label='CATE_pred_ours', color='g')
-        plt.legend()
-        plt.title(
-            f"Mise CATE =  OURS : {d_ours['mise_cate'][patient].round(4)} || {model_name} : {d['mise_cate'][patient].round(4)} ")
-
-        return fig_surv, fig_cate
 
     def represent_patient(self, patient):
         for model_name in self.list_models[1:]:
@@ -669,13 +643,14 @@ class Tunning():
 
     def objective_survcaus(self, trial):
 
-        self.params_search = {'num_durations':  trial.suggest_int('num_durations', 25, 100),
-                              'encoded_features': trial.suggest_int('encoded_features', 10, 100),
-                              'alpha_wass': trial.suggest_uniform('alpha_wass', 0, 10),
+        self.params_search = {'num_durations':  trial.suggest_int('num_durations', 20, 30),
+                              'encoded_features': trial.suggest_int('encoded_features', 10, 30),
+                              # trial.suggest_uniform('alpha_wass', 0, 10),
+                              'alpha_wass': trial.suggest_loguniform('alpha_wass', 1e-2, 1e-1),
                               # 'batch_size': trial.suggest_int('batch_size', 64, 256),
                               # 'epochs': 20,  #trial.suggest_int('epochs', 50, 200),
                               'lr': trial.suggest_loguniform('lr', 1e-4, 1e-2)
-                              #'patience': trial.suggest_int('patience', 2, 10)
+                              # 'patience': trial.suggest_int('patience', 2, 10)
                               }
         self.params_search['epochs'] = 20
         self.params_search['patience'] = 4
@@ -688,7 +663,8 @@ class Tunning():
         #d_train = Eval.Results_SurvCaus(SC, is_train=True)
         d_val = self.Eval.Results_SurvCaus(self.SC, is_train=False)
         #MMise_train = (np.mean(d_train["mise_0"])+np.mean(d_train["mise_1"]))/2
-        MMise_val = (np.mean(d_val["mise_0"])+np.mean(d_val["mise_1"]))/2
+        MMise_val = (np.mean(d_val["mise_cate"]) +
+                     np.mean(d_val["mise_0"])+np.mean(d_val["mise_1"]))/3
 
         # MMise_cate_train = np.mean(d_train["mise_cate"]).round(2)
         # MMise_cate_val = np.mean(d_val["mise_cate"]).round(2)
@@ -1084,16 +1060,20 @@ class SimulationNew:
 
         p_tt = sigmoid(self.X.dot(params_tt))
         tt = binomial(1, p_tt)  # treatment
+        #to modify tt to have 30% of patients with treatment
+        #tt[tt == 0] = np.random.binomial(1, 0.7, np.sum(tt == 0))
+        
 
         for j in range(self.n_features):
             self.X[:, j] -= self.wd_para/2 * tt
             self.X[:, j] += self.wd_para/2 * (1-tt)
 
-
         # transform X distribution : normalisation [-1,1]
-        self.X = (self.X ) / (np.max(self.X)) #- np.min(self.X))
-        
-        
+        with_normalization = False
+        if with_normalization:
+            self.X = (self.X - np.min(self.X)) / (np.max(self.X) )# - np.min(self.X))
+        #self.X = (self.X) / (np.max(self.X))  # - np.min(self.X))
+
         # simulation of factual and counterfactual times to event
         T_f = self.simulation_T(tt)
         T_cf = self.simulation_T(1-tt)
@@ -1109,8 +1089,7 @@ class SimulationNew:
         # definition of T1 and T0 (it matches the factual and counterfactual times to event)
         T_1 = T_f*tt + T_cf * (1-tt)
         T_0 = T_f*(1-tt) + T_cf * tt
-      
-        
+
         # transform treatment specific covariates in tensor and compute the Wasserstein distance
         mask_1, mask_0 = (tt == 1), (tt == 0)
         X_tesnor = torch.tensor(self.X).float()
@@ -1129,7 +1108,6 @@ class SimulationNew:
         # data_frame construction
         colmns = ["X" + str(j) for j in range(1, self.n_features + 1)]
         data_sim = pd.DataFrame(data=self.X, columns=colmns)
-
 
         data_sim["tt"] = tt
         data_sim["T_f_cens"] = T_f_cens
@@ -1155,7 +1133,7 @@ class SimulationNew:
         print('Wd_para : ', self.wd_para)
         self.wd = wd
         data_sim.to_csv(self.path_data + ".csv", index=False, header=True)
-        
+
         return data_sim
 
     # Distribution plots for tt=0/1
@@ -1292,6 +1270,17 @@ class Neptune:
         self.experiment["data_exp/"+name+"_"+str(num_run)].upload(
             File("./data_exp/"+name+"_"+str(num_run)+".csv"))
 
+    def send_dict(self, dic, name, num_run):
+        dict_to_send = dic.copy()
+        if 'scheme'  in dict_to_send:
+            del dict_to_send['scheme'] 
+        if 'beta' in dict_to_send:
+            del dict_to_send['beta']          
+        with open("./param_exp/"+name+"_"+str(num_run)+".json", 'w') as f:
+            json.dump(dict_to_send, f)
+        self.experiment["param_exp/"+name+"_"+str(num_run)].upload(
+            File("./param_exp/"+name+"_"+str(num_run)+".json"))
+
     def send_param(self, param, name, num_run):
         param.to_csv("./param_exp/"+name+"_"+str(num_run)+".csv")
         self.experiment["param_exp/"+name+"_"+str(num_run)].upload(
@@ -1351,7 +1340,6 @@ class Neptune:
         self.p_survcaus_best = p_survcaus_best
         self.p_survcaus_best_list.append(p_survcaus_best)
         return p_survcaus_best
-
 
     def run_tunning_bart(self, n_trials):
         p_bart_best = self.tunning.get_best_hyperparameter_bart(
@@ -1420,16 +1408,15 @@ class Neptune:
                 str(self.num_runs)+"wd_"+str(self.wd) + \
                 "_"+model_name+"_surv.png"
             fig_surv.savefig(path_fig_surv)
-            
 
             path_fig_cate = "./plots_exp/"+self.experiment_name+"_" + \
                 str(self.num_runs)+"wd_"+str(self.wd) + \
                 "_"+model_name+"_cate.png"
             fig_cate.savefig(path_fig_cate)
-            
+
             self.experiment["plots_exp/surv_"+model_name+"_exp" +
                             str(self.num_runs)+"wd_"+str(self.wd)].upload(File(path_fig_surv))
-            
+
             self.experiment["plots_exp/cate_"+model_name+"_exp" +
                             str(self.num_runs)+"wd_"+str(self.wd)].upload(File(path_fig_cate))
 

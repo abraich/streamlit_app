@@ -1,10 +1,9 @@
 
 
-
 # from scipy import stats
 import matplotlib.pyplot as plt
 import numpy as np
-import torchtuples as tt 
+import torchtuples as tt
 
 import pandas as pd
 import seaborn as sns
@@ -13,7 +12,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from matplotlib.pyplot import figure
-from pycox.models import PMF , utils
+from pycox.models import PMF, utils
 from scipy.linalg import toeplitz
 from scipy.stats import bernoulli, multivariate_normal
 from sklearn.preprocessing import StandardScaler
@@ -344,89 +343,6 @@ def get_separ_data(x):
 #### 
 
 
-def quantile(t, S, p):
-    index = np.argmin([np.abs(S[k]-p) for k in range(len(S))])
-    return t[index]
-
-
-def PlotResults(d, patient):
-    I = d['I']
-    S_0_pred = d['S_0_pred'][patient]
-    S_1_pred = d['S_1_pred'][patient]
-    S_0_true = d['S_0_true'][patient]
-    S_1_true = d['S_1_true'][patient]
-
-    CATE_true = S_1_true - S_0_true
-    CATE_pred = S_1_pred - S_0_pred
-
-    if len(CATE_true) != len(CATE_pred):
-        print('Error : shape not equal')
-
-    p_list = [0.1, 0.25, 0.4, 0.5, 0.75, 0.9]
-
-    d_quantile = {}
-    d_quantile['p'] = p_list
-    d_quantile['t*_0 true'] = [quantile(I, S_0_true, p) for p in p_list]
-    d_quantile['t*_0 pred'] = [quantile(I, S_0_pred, p) for p in p_list]
-    d_quantile['dif_0'] = np.sqrt(np.mean(
-        (np.array(d_quantile['t*_0 true'])-np.array(d_quantile['t*_0 pred']))**2))
-
-    d_quantile['t*_1 true'] = [quantile(I, S_1_true, p) for p in p_list]
-    d_quantile['t*_1 pred'] = [quantile(I, S_1_pred, p) for p in p_list]
-    d_quantile['dif_1'] = np.sqrt(np.mean(
-        (np.array(d_quantile['t*_1 true'])-np.array(d_quantile['t*_1 pred']))**2))
-
-    fig1 = plt.figure(figsize=(18, 10))
-    ax1 = fig1.add_subplot(111)
-    ax1.plot(I, S_0_true, label='S_true for T=0', marker='o',
-             linestyle='dashed', markersize=1, color='b')
-    ax1.plot(I, S_1_true, label='S_true for T=1', marker='o',
-             linestyle='dashed', markersize=1, color='r')
-    ax1.plot(I, S_0_pred, label='S_pred for T=0',
-             color='b', drawstyle='steps-post')
-    ax1.plot(I, S_1_pred, label='S_pred for T=1',
-             color='r', drawstyle='steps-post')
-    #ax1.fill_between(I, S_0_true, S_0_pred, color="grey")
-    # ax1.fill_between(I, S_1_true, S_1_pred, color="#5bc0de")
-
-    plt.legend()
-    plt.close()
-
-    fig2 = plt.figure(figsize=(18, 10))
-    ax2 = fig2.add_subplot(111)
-    ax2.plot(I, CATE_true, label='CATE_true', marker='o',
-             linestyle='dashed', markersize=1, color='b')
-    ax2.plot(I, CATE_pred, label='CATE_pred', color='r')
-    plt.legend()
-    plt.close()
-
-    """pehe = np.exp(CATE_true-CATE_pred)
-    s_pehe = simps(pehe, I).round(4) / max(I)
-    ax2.plot(I, pehe , label=f'exp(CATE_true-CATE_pred) : S_PEHE = {s_pehe}', color='r')
-    ax2.plot(I, [pehe.mean()]*len(I), label='Mean', marker='o',
-               linestyle='dashed', markersize=1, color='b')
-    plt.legend()
-    plt.close()"""
-    d_dtw0 = dtw_F(S_0_true, S_0_pred)
-    d_dtw1 = dtw_F(S_1_true, S_1_pred)
-
-    dtw = (d_dtw0, d_dtw1)
-
-    #fig3 = plt.figure(figsize=(18, 10))
-    #ax3 = fig3.add_subplot(111)
-
-    #kdetrue = gaussian_kde(CATE_true)
-    #kdepred = gaussian_kde(CATE_pred)
-
-    """grid = np.linspace(-1.5, 1.5, 300)
-    ax3.plot(grid, kdetrue(grid), label="CATE_true distribution")
-    ax3.plot(grid, kdepred(grid), label="CATE_pred distribution")
-    plt.legend()
-    plt.close()"""
-
-    return fig1, fig2, d_quantile, dtw  # fig3
-
-
 def boxplot(models_list,
             d_exp,
             xlabel='Models',
@@ -457,62 +373,63 @@ def boxplot(models_list,
     plt.close()
     return fig
 
-
 def plots(patient, d_all, model_name):
-    d = d_all[f'd_{model_name}']
-    I = d['I']
+        d = d_all[f'd_{model_name}']
+        I = d['I']
+        S_0_pred = d['S_0_pred'][patient]
+        S_1_pred = d['S_1_pred'][patient]
+        S_0_true = d['S_0_true'][patient]
+        S_1_true = d['S_1_true'][patient]
 
-    S_0_pred = d['S_0_pred'][patient]
-    S_1_pred = d['S_1_pred'][patient]
-    S_0_true = d['S_0_true'][patient]
-    S_1_true = d['S_1_true'][patient]
+        CATE_true = S_1_true - S_0_true
+        CATE_pred = S_1_pred - S_0_pred
 
-    CATE_true = S_1_true - S_0_true
-    CATE_pred = S_1_pred - S_0_pred
+        d_ours = d_all['d_SurvCaus']
 
-    d_ours = d_all['d_SurvCaus']
+        S_0_pred_ours = d_ours['S_0_pred'][patient]
+        S_1_pred_ours = d_ours['S_1_pred'][patient]
 
-    S_0_pred_ours = d_ours['S_0_pred'][patient]
-    S_1_pred_ours = d_ours['S_1_pred'][patient]
+        CATE_pred_ours = S_1_pred_ours - S_0_pred_ours
 
-    CATE_pred_ours = S_1_pred_ours - S_0_pred_ours
+        p_ours = np.argmin(
+            np.array(d_ours['mise_0'])+np.array(d_ours['mise_1']))
+        p_bench = np.argmin(np.array(d['mise_0'])+np.array(d['mise_1']))
+        print("(p_ours,p_bench) =", (p_ours, p_bench))
+        # Plot survie
 
-    p_ours = np.argmin(np.array(d_ours['mise_0'])+np.array(d_ours['mise_1']))
-    p_bench = np.argmin(np.array(d['mise_0'])+np.array(d['mise_1']))
-    print("(p_ours,p_bench) =", (p_ours, p_bench))
-    # Plot survie
+        fig_surv = plt.figure(figsize=(18, 10))
+        ax1 = fig_surv.add_subplot(111)
+        ax1.plot(I, S_0_true, label='S_true for T=0',
+                 marker='o', markersize=1, color='b')
+        ax1.plot(I, S_1_true, label='S_true for T=1',
+                 marker='o', markersize=1, color='r')
+        ax1.plot(I, S_0_pred, label='S_pred for T=0',
+                 color='b', linestyle='dashed')
+        ax1.plot(I, S_1_pred, label='S_pred for T=1',
+                 color='r', linestyle='dashed')
+        ax1.plot(I, S_0_pred_ours, label='S_pred_ours for T=0',
+                 color='b', linestyle='-.', drawstyle='steps-post')
+        ax1.plot(I, S_1_pred_ours, label='S_pred_ours for T=1',
+                 color='r', linestyle='-.', drawstyle='steps-post')
 
-    fig_surv = plt.figure(figsize=(18, 10))
-    ax1 = fig_surv.add_subplot(111)
-    ax1.plot(I, S_0_true, label='S_true for T=0',
-             marker='o', markersize=1, color='b')
-    ax1.plot(I, S_1_true, label='S_true for T=1',
-             marker='o', markersize=1, color='r')
-    ax1.plot(I, S_0_pred, label='S_pred for T=0',
-             color='b', linestyle='dashed')
-    ax1.plot(I, S_1_pred, label='S_pred for T=1',
-             color='r', linestyle='dashed')
-    ax1.plot(I, S_0_pred_ours, label='S_pred_ours for T=0',
-             color='b', linestyle='-.', drawstyle='steps-post')
-    ax1.plot(I, S_1_pred_ours, label='S_pred_ours for T=1',
-             color='r', linestyle='-.', drawstyle='steps-post')
+        plt.legend()
+        plt.title(
+            f"Mise (0,1) =  OURS : ({d_ours['mise_0'][patient].round(4)},{d_ours['mise_1'][patient].round(4)}) || {model_name} : ({d['mise_0'][patient].round(4)},{d['mise_1'][patient].round(4)}) ")
 
-    plt.legend()
-    plt.title(
-        f"Mise (0,1) =  OURS : ({d_ours['mise_0'][patient].round(4)},{d_ours['mise_1'][patient].round(4)}) || {model_name} : ({d['mise_0'][patient].round(4)},{d['mise_1'][patient].round(4)}) ")
+        # plot CATE
+        fig_cate = plt.figure(figsize=(18, 10))
+        ax2 = fig_cate.add_subplot(111)
+        ax2.plot(I, CATE_true, label='CATE_true',
+                 marker='o', markersize=1, color='b')
+        ax2.plot(I, CATE_pred, label='CATE_pred', color='r')
+        ax2.plot(I, CATE_pred_ours, label='CATE_pred_ours', color='g')
+        plt.legend()
+        plt.title(
+            f"Mise CATE =  OURS : {d_ours['mise_cate'][patient].round(4)} || {model_name} : {d['mise_cate'][patient].round(4)} ")
 
-    # plot CATE
-    fig_cate = plt.figure(figsize=(18, 10))
-    ax2 = fig_cate.add_subplot(111)
-    ax2.plot(I, CATE_true, label='CATE_true',
-             marker='o', markersize=1, color='b')
-    ax2.plot(I, CATE_pred, label='CATE_pred', color='r')
-    ax2.plot(I, CATE_pred_ours, label='CATE_pred_ours', color='g')
-    plt.legend()
-    plt.title(
-        f"Mise CATE =  OURS : {d_ours['mise_cate'][patient].round(4)} || {model_name} : {d['mise_cate'][patient].round(4)} ")
+        d_q_model = get_quantile(S_0_true, S_0_pred, S_1_true, S_1_pred, I)
 
-    return fig_surv, fig_cate
+        return fig_surv, fig_cate , d_q_model
 #####
 
 
@@ -546,9 +463,9 @@ def H_Score(y_true, y_pred):
 
 
 def mise(y_true, y_pred, I):
-    #simps((y_true-y_pred)**2, I).round(6) / max(I)
-    #surface_true = simps(np.abs(y_true), I).round(6) / max(I)
-    #surface_pred = simps(np.abs(y_pred), I).round(6) / max(I)
+    # simps((y_true-y_pred)**2, I).round(6) / max(I)
+    # surface_true = simps(np.abs(y_true), I).round(6) / max(I)
+    # surface_pred = simps(np.abs(y_pred), I).round(6) / max(I)
     return np.sqrt(simps((y_true-y_pred)**2, I).round(6)) / max(I)
 
 
@@ -563,9 +480,9 @@ def interpolate(I, cuts, S_0_pred, S_1_pred):
 
 @jit(forceobj=True, nogil=True, boundscheck=False)
 def piecewise(x, bins, values):
-    #bins = np.asarray(bins[:len(x)])
-    #values = np.asarray(values[:len(x)])
-    bins = np.asarray(bins) 
+    # bins = np.asarray(bins[:len(x)])
+    # values = np.asarray(values[:len(x)])
+    bins = np.asarray(bins)
     x = np.asarray(x)
     values = np.asarray(values)
     """Computes the values at x of the piecewise constant function
@@ -613,16 +530,34 @@ def piecewise(x, bins, values):
     return out
 
 
-
-def search_beta(alpha_t,lamb,coeff_tt, y_min,t):
+def search_beta(alpha_t, lamb, coeff_tt, y_min, t):
     log_u = np.log(np.random.uniform(0, 1, 25))
-    g_t = np.log(-log_u) - alpha_t * np.log(lamb*y_min) - coeff_tt *t 
+    g_t = np.log(-log_u) - alpha_t * np.log(lamb*y_min) - coeff_tt * t
     return g_t
 
- 
+
+# quantiles
+def quantile(t, S, p):
+    index = np.argmin([np.abs(S[k]-p) for k in range(len(S))])
+    return round(t[index], 2)
+
+
+def get_quantile(S_0_true, S_0_pred, S_1_true, S_1_pred, I):
+    p_list = [0.1, 0.25, 0.4, 0.5, 0.75, 0.9]
+    d_quantile = {}
+    d_quantile['p'] = p_list
+    d_quantile['t*_0 true'] = [quantile(I, S_0_true, p) for p in p_list]
+    d_quantile['t*_0 pred'] = [quantile(I, S_0_pred, p) for p in p_list]
+    d_quantile['dif_0'] = np.sqrt(np.mean(
+        (np.array(d_quantile['t*_0 true'])-np.array(d_quantile['t*_0 pred']))**2))
+
+    d_quantile['t*_1 true'] = [quantile(I, S_1_true, p) for p in p_list]
+    d_quantile['t*_1 pred'] = [quantile(I, S_1_pred, p) for p in p_list]
+    d_quantile['dif_1'] = np.sqrt(np.mean(
+        (np.array(d_quantile['t*_1 true'])-np.array(d_quantile['t*_1 pred']))**2))
+    d_quantile['dif']=  (d_quantile['dif_0'] + d_quantile['dif_1'])/2
+    return d_quantile
+
+
 def BART(num_trees):
     return ConditionalSurvivalForestModel(num_trees=num_trees)
-   
-    
-    
-    

@@ -32,7 +32,7 @@ def boxplot(models_list,
     ax.set_title('Boxplot of the Mise survenance')
     plt.show()
 
-"""# test
+# test
 if __name__ == '__main__':
     models_list = ['model_1', 'model_2', 'model_3']
     d_exp = {'mise_0_model_1': np.random.randint(0, 100, size=10),
@@ -44,7 +44,7 @@ if __name__ == '__main__':
                 'CATE_model_1': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                 'CATE_model_2': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                 'CATE_model_3': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
-    boxplot(models_list, d_exp, option=0)"""
+    boxplot(models_list, d_exp, option=0)
 
 # plot  norme (true quantiles - predicted quantiles) for each model as boxplot
 def quantile_boxplot(models_list,d_exp):
@@ -95,12 +95,10 @@ def concatenate(df_table_list):
     wks.set_dataframe(df_table_concat, (1, 1))
     
     return df_table_concat
-    wks.set_dataframe(df_table_concat,(1,1))
-    return df_table_concat
     
 
 # test table
-if __name__ == '__main__':
+"""if __name__ == '__main__':
     models_list = ['model_1', 'model_2', 'model_3']
     d_exp = {'mise_0_model_1': np.random.randint(0, 100, size=10),
              'mise_0_model_2': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
@@ -121,4 +119,4 @@ if __name__ == '__main__':
     df_table_concat = concatenate(list_df_table)
     df_table_concat.to_csv('table.csv')
     print(df_table_concat)
-    
+    """

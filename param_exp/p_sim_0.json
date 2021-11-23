@@ -1,0 +1,1 @@
+{"n_samples": 1000, "n_features": 25, "alpha": 2, "lamb": 1, "coef_tt": 1.8, "rho": 0.1, "kappa": 1.0, "wd_param": 10.0, "path_data": "./sim_surv"}

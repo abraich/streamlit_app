@@ -1,0 +1,1 @@
+{"num_durations": 25, "encoded_features": 17, "alpha_wass": 0.07909694084520515, "lr": 0.004051401714845319, "patience": 2, "epochs": 20, "batch_size": 256}
